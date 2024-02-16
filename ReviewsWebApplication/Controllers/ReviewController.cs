@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Review.Domain.Services;
@@ -11,18 +12,20 @@ public class ReviewController : ControllerBase
 {
     private readonly ILogger<ReviewController> _logger;
     private readonly IReviewService _reviewService;
+    private readonly IMapper _mapper;
 
-    public ReviewController(ILogger<ReviewController> logger, IReviewService reviewService)
+    public ReviewController(ILogger<ReviewController> logger, IReviewService reviewService, IMapper mapper)
     {
         _logger = logger;
         _reviewService = reviewService;
+        _mapper = mapper;
     }
 
     /// <summary>
     /// ��������� ���� ������� �� ��������
     /// </summary>
     /// <returns></returns>
-    [HttpGet ("TryGetAll")]
+    [HttpGet("TryGetAll")]
     public async Task<ActionResult<List<ReviewViewModel>>> TryGetAllAsync()
     {
         try
@@ -61,11 +64,12 @@ public class ReviewController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("TryAdd")]
-    public async Task<ActionResult<List<ReviewViewModel>>> TryAddAsync(int productId, int userId, string description, int grade)
+    public async Task<ActionResult<List<ReviewViewModel>>> TryAddAsync(AddReviewViewModel newReviewViewModel)
     {
         try
         {
-            var result = await _reviewService.TryAddAsync(productId, userId, description, grade);
+            var newReview = _mapper.Map<AddReview>(newReviewViewModel);
+            var result = await _reviewService.TryAddAsync(newReview);
             if (result)
                 return Ok();
             return BadRequest(result);
@@ -76,7 +80,7 @@ public class ReviewController : ControllerBase
             return BadRequest(new { Error = e.Message });
         }
     }
-    
+
     /// <summary>
     /// �������� ������ �� id
     /// </summary>
