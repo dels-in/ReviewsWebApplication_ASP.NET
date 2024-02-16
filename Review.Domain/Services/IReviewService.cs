@@ -1,4 +1,6 @@
-﻿namespace Review.Domain.Services;
+﻿using ReviewsWebApplication.Models;
+
+namespace Review.Domain.Services;
 
 public interface IReviewService
 {
@@ -24,7 +26,7 @@ public interface IReviewService
     /// <param name="description">Текст отзыва</param>
     /// <param name="grade">Оценка</param>
     /// <returns></returns>
-    Task<bool> TryAddAsync(int productId, int userId, string description, int grade);
+    Task<bool> TryAddAsync(AddReview newReview);
 
     /// <summary>
     /// Удаление отзыва
