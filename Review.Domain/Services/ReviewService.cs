@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Review.Domain.Models;
+using ReviewsWebApplication.Models;
 
 namespace Review.Domain.Services;
 
@@ -22,21 +23,21 @@ public class ReviewService : IReviewService
         return await _databaseContext.Reviews.Where(x => x.ProductId == productId).ToListAsync();
     }
 
-    public async Task<bool> TryAddAsync(int productId, int userId, string description, int grade)
+    public async Task<bool> TryAddAsync(AddReview newReview)
     {
         try
         {
             var dateTime = DateTime.Now;
             var grades = await _databaseContext.Reviews.Select(x => x.Grade).ToListAsync();
-            grades.Add(grade);
+            grades.Add(newReview.Grade);
             var gradesAverage = grades.Average();
 
-            var rating = await _databaseContext.Ratings.FirstOrDefaultAsync(r => r.ProductId == productId);
+            var rating = await _databaseContext.Ratings.FirstOrDefaultAsync(r => r.ProductId == newReview.ProductId);
             if (rating == null)
             {
                 rating = new Rating
                 {
-                    ProductId = productId,
+                    ProductId = newReview.ProductId,
                     CreateDate = dateTime,
                     Grade = gradesAverage,
                 };
@@ -51,10 +52,10 @@ public class ReviewService : IReviewService
 
             var feedback = new Models.Review
             {
-                ProductId = productId,
-                UserId = userId,
-                Text = description,
-                Grade = grade,
+                ProductId = newReview.ProductId,
+                UserId = newReview.UserId,
+                Text = newReview.Text,
+                Grade = newReview.Grade,
                 CreateDate = dateTime,
                 RatingId = rating.Id,
                 Rating = rating,
